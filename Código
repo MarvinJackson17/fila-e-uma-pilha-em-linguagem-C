@@ -1,0 +1,202 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Definição do nó da fila
+typedef struct Node {
+    char nucleotide;
+    struct Node* next;
+} Node;
+
+// Definição da fila
+typedef struct {
+    Node* front;
+    Node* rear;
+} Queue;
+
+// Função para criar um novo nó da fila
+Node* createNode(char nucleotide) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    if (newNode == NULL) {
+        printf("Erro ao alocar memória.\n");
+        exit(1);
+    }
+    newNode->nucleotide = nucleotide;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Função para criar uma nova fila
+Queue* createQueue() {
+    Queue* queue = (Queue*)malloc(sizeof(Queue));
+    if (queue == NULL) {
+        printf("Erro ao alocar memória.\n");
+        exit(1);
+    }
+    queue->front = NULL;
+    queue->rear = NULL;
+    return queue;
+}
+
+// Função para verificar se a fila está vazia
+int isQueueEmpty(Queue* queue) {
+    return (queue->front == NULL);
+}
+
+// Função para inserir um elemento na fila
+void enqueue(Queue* queue, char nucleotide) {
+    Node* newNode = createNode(nucleotide);
+    if (isQueueEmpty(queue)) {
+        queue->front = newNode;
+        queue->rear = newNode;
+    } else {
+        queue->rear->next = newNode;
+        queue->rear = newNode;
+    }
+}
+
+// Função para remover um elemento da fila
+void dequeue(Queue* queue) {
+    if (isQueueEmpty(queue)) {
+        printf("A fila está vazia.\n");
+    } else {
+        Node* temp = queue->front;
+        queue->front = queue->front->next;
+        free(temp);
+    }
+}
+
+// Função para imprimir a fila
+void printQueue(Queue* queue) {
+    if (isQueueEmpty(queue)) {
+        printf("A fila está vazia.\n");
+    } else {
+        Node* temp = queue->front;
+        while (temp != NULL) {
+            printf("%c", temp->nucleotide);
+            temp = temp->next;
+        }
+        printf("\n");
+    }
+}
+
+// Definição do nó da pilha
+typedef struct StackNode {
+    char nucleotide;
+    struct StackNode* next;
+} StackNode;
+
+// Definição da pilha
+typedef struct {
+    StackNode* top;
+} Stack;
+
+// Função para criar um novo nó da pilha
+StackNode* createStackNode(char nucleotide) {
+    StackNode* newNode = (StackNode*)malloc(sizeof(StackNode));
+    if (newNode == NULL) {
+        printf("Erro ao alocar memória.\n");
+        exit(1);
+    }
+    newNode->nucleotide = nucleotide;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Função para verificar se a pilha está vazia
+int isStackEmpty(Stack* stack) {
+    return (stack->top == NULL);
+}
+
+// Função para inserir um elemento na pilha
+void push(Stack* stack, char nucleotide) {
+    StackNode* newNode = createStackNode(nucleotide);
+    newNode->next = stack->top;
+    stack->top = newNode;
+}
+
+// Função para remover um elemento da pilha
+void pop(Stack* stack) {
+    if (isStackEmpty(stack)) {
+        printf("A pilha está vazia.\n");
+    } else {
+        StackNode* temp = stack->top;
+        stack->top = stack->top->next;
+        free(temp);
+    }
+}
+
+// Função para imprimir a pilha
+void printStack(Stack* stack) {
+    if (isStackEmpty(stack)) {
+        printf("A pilha está vazia.\n");
+    } else {
+        StackNode* temp = stack->top;
+        while (temp != NULL) {
+            printf("%c", temp->nucleotide);
+            temp = temp->next;
+        }
+        printf("\n");
+    }
+}
+
+int main() {
+    Queue* queue = createQueue();
+    Stack* stack = (Stack*)malloc(sizeof(Stack));
+    if (stack == NULL) {
+        printf("Erro ao alocar memória.\n");
+        exit(1);
+    }
+    stack->top = NULL;
+    
+    char dna[100];
+    printf("Digite a sequência de nucleotídeos (A, C, T, G): ");
+    scanf("%s", dna);
+    
+    // Inserir na fila e na pilha
+    for (int i = 0; dna[i] != '\0'; i++) {
+        enqueue(queue, dna[i]);
+        
+        char complement;
+        switch (dna[i]) {
+            case 'A':
+                complement = 'T';
+                break;
+            case 'T':
+                complement = 'A';
+                break;
+            case 'C':
+                complement = 'G';
+                break;
+            case 'G':
+                complement = 'C';
+                break;
+            default:
+                printf("Nucleotídeo inválido: %c\n", dna[i]);
+                continue;
+        }
+        
+        push(stack, complement);
+    }
+    
+    // Imprimir a fila
+    printf("Fila: ");
+    printQueue(queue);
+    
+    // Imprimir a pilha
+    printf("Pilha: ");
+    printStack(stack);
+    
+    // Liberação de memória
+    while (!isQueueEmpty(queue)) {
+        dequeue(queue);
+    }
+    free(queue);
+    
+    while (!isStackEmpty(stack)) {
+        pop(stack);
+    }
+    free(stack);
+    
+    return 0;
+}
